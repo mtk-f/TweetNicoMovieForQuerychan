@@ -61,9 +61,8 @@ public class App {
 		final String postContent = String
 				.format("{\"query\":\"%1$s\",\"service\":[\"video\"],\"search\":[\"title\",\"description\",\"tags\"],\"join\":[\"cmsid\",\"title\",\"description\",\"thumbnail_url\",\"start_time\",\"view_counter\",\"comment_counter\",\"mylist_counter\",\"channel_id\",\"main_community_id\",\"length_seconds\",\"last_res_body\"],\"filters\":[],\"sort_by\":\"start_time\",\"order\":\"desc\",\"from\":0,\"size\":25,\"timeout\":10000,\"issuer\":\"pc\",\"reason\":\"user\"}",
 						QUERY);
-		
 
-		// ツイッターAPIのトークンを取得する.
+		// ツイッターAPIのシングルトンを設定する.
 		Twitter twitter = TwitterFactory.getSingleton();
 		
 		// nicovideo.jpをクエリー検索して結果のJSONを取得する.
@@ -84,22 +83,22 @@ public class App {
 		if (cr2ndPosition == 0 || cr3drPosition == -1){
 			System.out.println(rawJson);
 			String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME,
-					"JSON CR error", TWEET_TAG);
+					"JSON \\n error", TWEET_TAG);
 			twitter.updateStatus(msg);
 			return;
 		}
 		
-		String json2rdLine = rawJson.substring(cr2ndPosition, cr3drPosition);
+		String json2ndLine = rawJson.substring(cr2ndPosition, cr3drPosition);
 		
 		// 検索結果のJSONをパースする.
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			Response response = mapper.readValue(json2rdLine, Response.class);
+			JsonDefinition response = mapper.readValue(json2ndLine, JsonDefinition.class);
 			if (response.values != null) {
 				// 動画を乱数で選ぶ.
 				Random random = new Random();
 				int index = random.nextInt(response.values.length);
-				ResponseValue value = response.values[index];
+				JsonDefinitionValue value = response.values[index];
 				
 				final int maxLength = 50; 
 				String title = value.title.length() < maxLength ? value.title : value.title.substring(0, maxLength) + "...";
@@ -107,9 +106,9 @@ public class App {
 				String msg = String.format("今日の %1$s のおすすめ動画は･･･\n%2$s\nhttp://www.nicovideo.jp/watch/%3$s\n%4$s",
 						QUERY, title, value.cmsid, TWEET_TAG);
 				
-				System.out.println(msg);
+//				System.out.println(msg);
 				
-				// 検索した結果をツイッターに投稿する.
+				// 選んだ動画をツイッターに投稿する.
 				twitter.updateStatus(msg);
 			} else {
 				String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME,
