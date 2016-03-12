@@ -50,7 +50,6 @@ public class App {
 			System.out.printf("Environment variable %1$s is not true\n",
 					envEnabled);
 		}
-		
 	}
 	
 	private static void TweetQuerychanMovie() throws TwitterException {
@@ -77,10 +76,17 @@ public class App {
 		int cr2ndPosition = -1;
 		for (int i=0; i<2; i++) {
 			cr2ndPosition = rawJson.indexOf("\n", cr2ndPosition) + 1;
+			if (cr2ndPosition == 0){
+				System.out.println(rawJson);
+				String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME,
+						"JSON \\n error", TWEET_TAG);
+				twitter.updateStatus(msg);
+				return;
+			}
 		}
-		int cr3drPosition = rawJson.indexOf("\n", cr2ndPosition);
 		
-		if (cr2ndPosition == 0 || cr3drPosition == -1){
+		int cr3drPosition = rawJson.indexOf("\n", cr2ndPosition);
+		if (cr3drPosition == -1){
 			System.out.println(rawJson);
 			String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME,
 					"JSON \\n error", TWEET_TAG);
@@ -95,7 +101,7 @@ public class App {
 		try {
 			JsonDefinition response = mapper.readValue(json2ndLine, JsonDefinition.class);
 			if (response.values != null) {
-				// 動画を乱数で選ぶ.
+				// 動画をランダムに選ぶ.
 				Random random = new Random();
 				int index = random.nextInt(response.values.length);
 				JsonDefinitionValue value = response.values[index];
@@ -103,10 +109,11 @@ public class App {
 				final int maxLength = 50; 
 				String title = value.title.length() < maxLength ? value.title : value.title.substring(0, maxLength) + "...";
 				
-				String msg = String.format("今日の %1$s のおすすめ動画は･･･\n%2$s\nhttp://www.nicovideo.jp/watch/%3$s\n%4$s",
+				String msg = String.format("今日の %1$s のおすすめ動画は･･･\n"
+						+ "%2$s\n"
+						+ "http://www.nicovideo.jp/watch/%3$s\n"
+						+ "%4$s",
 						QUERY, title, value.cmsid, TWEET_TAG);
-				
-//				System.out.println(msg);
 				
 				// 選んだ動画をツイッターに投稿する.
 				twitter.updateStatus(msg);
