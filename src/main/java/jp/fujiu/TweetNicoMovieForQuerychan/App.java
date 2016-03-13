@@ -14,8 +14,15 @@ import com.sun.jersey.api.client.WebResource;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 
 public class App {
+	private static final String TWITTER4J_DEBUG = "Twitter4jDebug";
+	private static final String TWITTER_API_KEY = "TwitterApiKey";
+	private static final String TWITTER_SECRET_KEY = "TwitterSecretKey";
+	private static final String TWITTER_ACCESS_TOKEN = "TwitterAccessToken";
+	private static final String TWITTER_ACCESS_SECRET = "TwitterAccessSecret";
+	
 	public static void main(String[] args) {
 		System.out.println("start : " + App.class.getName());
 
@@ -24,10 +31,10 @@ public class App {
 		// 必須環境変数のチェック.
 		String[] requiredEnvVariables = {
 				envEnabled,
-				"twitter4j.oauth.consumerKey",
-				"twitter4j.oauth.consumerSecret",
-				"twitter4j.oauth.accessToken",
-				"twitter4j.oauth.accessTokenSecret",
+				TWITTER_API_KEY,
+				TWITTER_SECRET_KEY,
+				TWITTER_ACCESS_TOKEN,
+				TWITTER_ACCESS_SECRET,
 		};
 
 		for (String value : requiredEnvVariables) {
@@ -36,6 +43,8 @@ public class App {
 				return;
 			}
 		}
+		
+		
 
 		// 環境変数が設定されていたらツイート処理を実行する.
 		// (Bluemixにjarファイルをアップロードした直後に実行される処理を環境変数で制御).
@@ -61,8 +70,15 @@ public class App {
 				"{\"query\":\"%1$s\",\"service\":[\"video\"],\"search\":[\"title\",\"description\",\"tags\"],\"join\":[\"cmsid\",\"title\",\"description\",\"thumbnail_url\",\"start_time\",\"view_counter\",\"comment_counter\",\"mylist_counter\",\"channel_id\",\"main_community_id\",\"length_seconds\",\"last_res_body\"],\"filters\":[],\"sort_by\":\"start_time\",\"order\":\"desc\",\"from\":0,\"size\":25,\"timeout\":10000,\"issuer\":\"pc\",\"reason\":\"user\"}",
 				QUERY);
 
-		// ツイッターAPIのシングルトンを設定する.
-		Twitter twitter = TwitterFactory.getSingleton();
+		// ツイッターAPIのインスタンス.
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		cb.setDebugEnabled("true".equalsIgnoreCase(System.getenv(TWITTER4J_DEBUG)))
+		  .setOAuthConsumerKey(System.getenv(TWITTER_API_KEY))
+		  .setOAuthConsumerSecret(System.getenv(TWITTER_SECRET_KEY))
+		  .setOAuthAccessToken(System.getenv(TWITTER_ACCESS_TOKEN))
+		  .setOAuthAccessTokenSecret(System.getenv(TWITTER_ACCESS_SECRET));
+		TwitterFactory tf = new TwitterFactory(cb.build());
+		Twitter twitter = tf.getInstance();
 
 		// nicovideo.jpをクエリー検索して結果のJSONを取得する.
 		String rawJson;
