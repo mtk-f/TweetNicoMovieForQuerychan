@@ -4,7 +4,7 @@ package jp.fujiu.TweetNicoMovieForQuerychan;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class JsonDefinitionValue {
+public class Json2ndDefinitionValue {
 	public int _rowid;
 	public String channel_id;
 	public String cmsid;

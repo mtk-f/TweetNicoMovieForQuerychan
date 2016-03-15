@@ -1,6 +1,7 @@
 package jp.fujiu.TweetNicoMovieForQuerychan;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.Random;
 
 import javax.ws.rs.core.MediaType;
@@ -64,8 +65,8 @@ public class App {
 		final String URL = "http://api.search.nicovideo.jp/api/";
 		final String QUERY = "mmd クエリちゃん";
 		final String postContent = String.format(
-				"{\"query\":\"%1$s\",\"service\":[\"video\"],\"search\":[\"title\",\"description\",\"tags\"],\"join\":[\"cmsid\",\"title\",\"description\",\"thumbnail_url\",\"start_time\",\"view_counter\",\"comment_counter\",\"mylist_counter\",\"channel_id\",\"main_community_id\",\"length_seconds\",\"last_res_body\"],\"filters\":[],\"sort_by\":\"start_time\",\"order\":\"desc\",\"from\":0,\"size\":25,\"timeout\":10000,\"issuer\":\"pc\",\"reason\":\"user\"}",
-				QUERY);
+				"{\"query\":\"%1$s\",\"service\":[\"video\"],\"search\":[\"title\",\"description\",\"tags\"],\"join\":[\"cmsid\",\"title\",\"description\",\"thumbnail_url\",\"start_time\",\"view_counter\",\"comment_counter\",\"mylist_counter\",\"channel_id\",\"main_community_id\",\"length_seconds\",\"last_res_body\"],\"filters\":[],\"sort_by\":\"start_time\",\"order\":\"desc\",\"from\":0,\"size\":%2$d,\"timeout\":10000,\"issuer\":\"pc\",\"reason\":\"user\"}",
+				QUERY, 100);
 
 		// ツイッターAPIのインスタンス.
 		ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -83,7 +84,7 @@ public class App {
 		WebResource webResource = client.resource(URL);
 		rawJson = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(String.class, postContent);
 		client.getExecutorService().shutdown();
-
+		
 		// 2行目のJSONを抜き出す.
 		int cr2ndPosition = -1;
 		for (int i = 0; i < 2; i++) {
@@ -104,44 +105,51 @@ public class App {
 			return;
 		}
 
-		String json2ndLine = rawJson.substring(cr2ndPosition, cr3drPosition);
+		String rawJson2ndLine = rawJson.substring(cr2ndPosition, cr3drPosition);
 
 		// 検索結果のJSONをパースする.
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			JsonDefinition response = mapper.readValue(json2ndLine, JsonDefinition.class);
-			if (response.values != null) {
-				// 動画をランダムに選ぶ.
-				Random random = new Random();
-				int index = random.nextInt(response.values.length);
-				JsonDefinitionValue value = response.values[index];
-
-				final int maxLength = 50;
-				String title = value.title.length() < maxLength ? value.title
-						: value.title.substring(0, maxLength) + "...";
-
-				String msg = String.format(
-						"今日の %1$s のおすすめ動画は･･･\n" 
-						+ "%2$s\n"
-						+ "http://www.nicovideo.jp/watch/%3$s\n" 
-						+ "%4$s", 
-						QUERY,
-						StringEscapeUtils.unescapeHtml4(title), 
-						value.cmsid, 
-						TWEET_TAG);
-
-				System.out.println(msg);
-				
-				// 選んだ動画をツイッターに投稿する.
-				// ただし環境変数 ApplicationEnabled が true のときのみ.
-				if (IS_ENABLED) {
-					twitter.updateStatus(msg);
-				}
-			} else {
-				String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, "response.values was null",
+			// JSONの2行目をパースする.
+			Json2ndDefinition json2nd = mapper.readValue(rawJson2ndLine, Json2ndDefinition.class);
+			
+			if (json2nd.values == null) {
+				String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, "response.json2nd.values was null",
 						TWEET_TAG);
 				twitter.updateStatus(msg);
 				return;
+			}
+			
+			// 動画をランダムに決める.
+			int total = json2nd.values.length;
+			Random random = new Random();
+			int index = random.nextInt(total);
+			
+			// 動画を選ぶ.
+			Json2ndDefinitionValue value = json2nd.values[index];
+
+			// 長すぎるタイトルを省略する.
+			final int maxLength = 40;
+			String title = Normalizer.normalize(value.title, Normalizer.Form.NFC).length() 
+					< maxLength ? value.title : value.title.substring(0, maxLength) + "...";
+
+			String msg = String.format(
+					"今日の %1$s のおすすめ動画は･･･\n" 
+					+ "%2$s\n"
+					+ "http://www.nicovideo.jp/watch/%3$s\n" 
+					+ "最新%4$d件から %5$s", 
+					QUERY,
+					StringEscapeUtils.unescapeHtml4(title), 
+					value.cmsid,
+					total, 
+					TWEET_TAG);
+
+			System.out.println(msg);
+			
+			// 選んだ動画をツイッターに投稿する.
+			// ただし環境変数 ApplicationEnabled が true のときのみ.
+			if (IS_ENABLED) {
+				twitter.updateStatus(msg);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
