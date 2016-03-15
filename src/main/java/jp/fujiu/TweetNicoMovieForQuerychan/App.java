@@ -17,51 +17,48 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class App {
-	private static final String TWITTER4J_DEBUG = "Twitter4jDebug";
-	private static final String TWITTER_API_KEY = "TwitterApiKey";
-	private static final String TWITTER_SECRET_KEY = "TwitterSecretKey";
-	private static final String TWITTER_ACCESS_TOKEN = "TwitterAccessToken";
-	private static final String TWITTER_ACCESS_SECRET = "TwitterAccessSecret";
+	// 環境変数.
+	private static final boolean IS_ENABLED = "true".equalsIgnoreCase(System.getenv("ApplicationEnabled"));
+	private static final boolean TWITTER4J_DEBUG = "true".equalsIgnoreCase(System.getenv("Twitter4jDebug"));
+	private static final String TWITTER_API_KEY = System.getenv("TwitterApiKey");
+	private static final String TWITTER_SECRET_KEY = System.getenv("TwitterSecretKey");
+	private static final String TWITTER_ACCESS_TOKEN = System.getenv("TwitterAccessToken");
+	private static final String TWITTER_ACCESS_SECRET = System.getenv("TwitterAccessSecret");
 	
 	public static void main(String[] args) {
-		System.out.println("start : " + App.class.getName());
-
-		final String envEnabled = "ApplicationEnabled";
+		System.out.println("start " + App.class.getName());
 
 		// 必須環境変数のチェック.
 		String[] requiredEnvVariables = {
-				envEnabled,
 				TWITTER_API_KEY,
 				TWITTER_SECRET_KEY,
 				TWITTER_ACCESS_TOKEN,
 				TWITTER_ACCESS_SECRET,
 		};
 
-		for (String value : requiredEnvVariables) {
-			if (System.getenv(value) == null) {
-				System.out.printf("Environment variable %1$s is nothing\n", value);
+		for (String envVariable : requiredEnvVariables) {
+			if (envVariable == null) {
+				System.out.printf("Environment variables \"TwitterApiKey\", \"TwitterSecretKey\", \"TwitterAccessToken\", \"TwitterAccessSecret\" are required\n", envVariable);
 				return;
 			}
 		}
-		
-		
 
-		// 環境変数が設定されていたらツイート処理を実行する.
-		// (Bluemixにjarファイルをアップロードした直後に実行される処理を環境変数で制御).
-		boolean doTweet = System.getenv(envEnabled).equalsIgnoreCase("true");
-		if (doTweet == false) {
-			System.out.printf("ENV '%1$s' is not 'true', so main tweet will not be posted.\n", envEnabled);
+		// 環境変数の設定によってツイートしないことをログに出力する.
+		if (IS_ENABLED == false) {
+			System.out.printf("ENV \"ApplicationEnabled\" is not \"true\", so main tweet will not be posted.\n");
 		}
 		
 		try {
-			TweetQuerychanMovie(doTweet);
+			TweetQuerychanMovie();
 		} catch (TwitterException e) {
 			e.printStackTrace();
 			return;
 		}
+		
+		System.out.println("fin " + App.class.getName());
 	}
 
-	private static void TweetQuerychanMovie(boolean doTweet) throws TwitterException {
+	private static void TweetQuerychanMovie() throws TwitterException {
 		final String TWITTER_SCREEN_NAME = "@mtk_f";
 		final String TWEET_TAG = "#クエリちゃんの動画をランダムにツイートするサービス #自動";
 		final String URL = "http://api.search.nicovideo.jp/api/";
@@ -72,11 +69,11 @@ public class App {
 
 		// ツイッターAPIのインスタンス.
 		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setDebugEnabled("true".equalsIgnoreCase(System.getenv(TWITTER4J_DEBUG)))
-		  .setOAuthConsumerKey(System.getenv(TWITTER_API_KEY))
-		  .setOAuthConsumerSecret(System.getenv(TWITTER_SECRET_KEY))
-		  .setOAuthAccessToken(System.getenv(TWITTER_ACCESS_TOKEN))
-		  .setOAuthAccessTokenSecret(System.getenv(TWITTER_ACCESS_SECRET));
+		cb.setDebugEnabled(TWITTER4J_DEBUG)
+		  .setOAuthConsumerKey(TWITTER_API_KEY)
+		  .setOAuthConsumerSecret(TWITTER_SECRET_KEY)
+		  .setOAuthAccessToken(TWITTER_ACCESS_TOKEN)
+		  .setOAuthAccessTokenSecret(TWITTER_ACCESS_SECRET);
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		Twitter twitter = tf.getInstance();
 
@@ -136,7 +133,8 @@ public class App {
 				System.out.println(msg);
 				
 				// 選んだ動画をツイッターに投稿する.
-				if (doTweet) {
+				// ただし環境変数 ApplicationEnabled が true のときのみ.
+				if (IS_ENABLED) {
 					twitter.updateStatus(msg);
 				}
 			} else {
