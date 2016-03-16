@@ -19,7 +19,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class App {
 	// 環境変数.
-	private static final boolean IS_ENABLED = "true".equalsIgnoreCase(System.getenv("ApplicationEnabled"));
+	private static final boolean IS_TWEETABLE = "true".equalsIgnoreCase(System.getenv("Tweetable"));
 	private static final boolean TWITTER4J_DEBUG = "true".equalsIgnoreCase(System.getenv("Twitter4jDebug"));
 	private static final String TWITTER_API_KEY = System.getenv("TwitterApiKey");
 	private static final String TWITTER_SECRET_KEY = System.getenv("TwitterSecretKey");
@@ -45,8 +45,8 @@ public class App {
 		}
 
 		// 環境変数の設定によってツイートしないことをログに出力する.
-		if (IS_ENABLED == false) {
-			System.out.printf("ENV \"ApplicationEnabled\" is not \"true\", so main tweet will not be posted.\n");
+		if (IS_TWEETABLE == false) {
+			System.out.printf("Environment variable \"Tweetable\" is not \"true\", so main tweet will not be posted.\n");
 		}
 		
 		try {
@@ -66,7 +66,7 @@ public class App {
 		final String QUERY = "mmd クエリちゃん";
 		final String postContent = String.format(
 				"{\"query\":\"%1$s\",\"service\":[\"video\"],\"search\":[\"title\",\"description\",\"tags\"],\"join\":[\"cmsid\",\"title\",\"description\",\"thumbnail_url\",\"start_time\",\"view_counter\",\"comment_counter\",\"mylist_counter\",\"channel_id\",\"main_community_id\",\"length_seconds\",\"last_res_body\"],\"filters\":[],\"sort_by\":\"start_time\",\"order\":\"desc\",\"from\":0,\"size\":%2$d,\"timeout\":10000,\"issuer\":\"pc\",\"reason\":\"user\"}",
-				QUERY, 100);
+				QUERY, 50);
 
 		// ツイッターAPIのインスタンス.
 		ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -91,7 +91,8 @@ public class App {
 			cr2ndPosition = rawJson.indexOf("\n", cr2ndPosition) + 1;
 			if (cr2ndPosition == 0) {
 				System.out.println(rawJson);
-				String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, "JSON \\n error", TWEET_TAG);
+				String msg = String.format("%1$s %2$s %3$s", 
+						TWITTER_SCREEN_NAME, "JSON \\n error", TWEET_TAG);
 				twitter.updateStatus(msg);
 				return;
 			}
@@ -114,9 +115,12 @@ public class App {
 			Json2ndDefinition json2nd = mapper.readValue(rawJson2ndLine, Json2ndDefinition.class);
 			
 			if (json2nd.values == null) {
-				String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, "response.json2nd.values was null",
+				String msg = String.format("%1$s %2$s %3$s", 
+						TWITTER_SCREEN_NAME, "response.json2nd.values was null",
 						TWEET_TAG);
-				twitter.updateStatus(msg);
+				if (IS_TWEETABLE) {
+					twitter.updateStatus(msg);
+				}
 				return;
 			}
 			
@@ -148,13 +152,15 @@ public class App {
 			
 			// 選んだ動画をツイッターに投稿する.
 			// ただし環境変数 ApplicationEnabled が true のときのみ.
-			if (IS_ENABLED) {
+			if (IS_TWEETABLE) {
 				twitter.updateStatus(msg);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, e.getMessage(), TWEET_TAG);
-			twitter.updateStatus(msg);
+			if (IS_TWEETABLE) {
+				twitter.updateStatus(msg);
+			}
 			return;
 		}
 	}
