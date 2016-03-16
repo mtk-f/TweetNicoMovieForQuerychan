@@ -2,8 +2,8 @@
 クエリちゃんの動画をランダムにツイートするサービス
 
 ## 概要
-nicovideo.jpを新しい順に「mmd クエリちゃん」でキーワード検索し、該当する動画の一つをランダムに選んでツイートします。
-一度の検索で取得できる動画は最大32件のようです。最大32件の中からランダムに選びます。
+nicovideo.jpで投稿日が新しい順に「mmd クエリちゃん」でキーワード検索し、取得した動画(おそらく最大32件)の中からランダムに選んでツイッターに投稿します。
+
 
 ## スクリーンショット
 ![スクリーンショット](https://github.com/mtk-f/TweetNicoMovieForQuerychan/blob/master/TweetNicoMovieForQuerychan.png)
@@ -31,7 +31,7 @@ Access Token Secreを設定します。
 
 jarファイルに書き出し後、環境変数を設定して実行します。  
 
-Windows場合
+Windowsの場合
 ````bat
 SET Tweetable=true
 SET TwitterApiKey=Consumer Key (API Key)
