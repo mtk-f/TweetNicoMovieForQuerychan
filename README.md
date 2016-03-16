@@ -1,8 +1,15 @@
 # TweetNicoMovieForQuerychan
 クエリちゃんの動画をランダムにツイートするサービス
 
+## 概要
+nicovideo.jpを「mmd クエリちゃん」でキーワード検索し、該当する動画の一つをランダムに選んでツイートします。
+
 ## スクリーンショット
 ![スクリーンショット](https://github.com/mtk-f/TweetNicoMovieForQuerychan/blob/master/TweetNicoMovieForQuerychan.png)
+
+## TODO
+一回の検索で返される動画の数は25件まででのようです。  
+25件件を超えた場合の処理は未実装です。
 
 ## 開発環境
 Version: Mars.2 Release
