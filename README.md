@@ -17,7 +17,7 @@ Version: Mars.2 Release
 
 ## 実行方法
 次の環境変数が必要です。
-* ApplicationEnabled  
+* Tweetable  
  trueでツイートを投稿します。true以外でコンソール出力飲みします。
 * TwitterApiKey  
 Consumer Key (API Key)を設定します。
@@ -33,7 +33,7 @@ jarファイルに書き出し後、環境変数を設定して実行します�
 
 Windows場合
 ````bat
-SET ApplicationEnabled=true
+SET Tweetable=true
 SET TwitterApiKey=Consumer Key (API Key)
 SET TwitterSecretKey=Consumer Secret (API Secret)
 SET TwitterAccessToken=Access Token
@@ -43,7 +43,7 @@ java -jar TweetNicoMovieForQuerychan.jar
 
 bash環境の場合
 ````bash
-export ApplicationEnabled=true
+export Tweetable=true
 export TwitterApiKey=Consumer Key (API Key)
 export TwitterSecretKey=Consumer Secret (API Secret)
 export TwitterAccessToken=Access Token
