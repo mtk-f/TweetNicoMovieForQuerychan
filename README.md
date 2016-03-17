@@ -9,7 +9,7 @@ nicovideo.jpで投稿日が新しい順に「mmd クエリちゃん」でキー�
 ![スクリーンショット](https://github.com/mtk-f/TweetNicoMovieForQuerychan/blob/master/TweetNicoMovieForQuerychan.png)
 
 ## 開発環境
-Version: Mars.2 Release
+Eclipse Mars.2 Release
 
 ## 使い方
 * あらかじめ Twitter の Application Management でキーとトークンを発行する必要があります。
