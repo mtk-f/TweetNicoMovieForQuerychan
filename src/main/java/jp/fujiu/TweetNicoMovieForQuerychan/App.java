@@ -37,17 +37,18 @@ public class App {
 				TWITTER_ACCESS_SECRET,
 		};
 
-		for (String envVariable : requiredEnvVariables) {
-			if (envVariable == null) {
-				System.out.printf("Environment variables \"TwitterApiKey\", "
-						+ "\"TwitterSecretKey\", \"TwitterAccessToken\", "
-						+ "\"TwitterAccessSecret\" are required\n");
-				return;
+		if (IS_TWEETABLE) {
+			// ツイートを投稿する設定で環境変数の設定が漏れていたらエラーにする.
+			for (String envVariable : requiredEnvVariables) {
+				if (envVariable == null) {
+					System.out.printf("Environment variables \"TwitterApiKey\", "
+							+ "\"TwitterSecretKey\", \"TwitterAccessToken\", "
+							+ "\"TwitterAccessSecret\" are required\n");
+					return;
+				}
 			}
-		}
-
-		// 環境変数の設定によってツイートしないことをログに出力する.
-		if (IS_TWEETABLE == false) {
+		} else {
+			// ツイートを投稿しない設定ならツイートしないことをログに出力する.
 			System.out.printf("Environment variable \"Tweetable\" is not \"true\", "
 					+ "so main tweet will not be posted.\n");
 		}
@@ -57,12 +58,15 @@ public class App {
 			me.TweetQuerychanMovie();
 		} catch (TwitterException e) {
 			e.printStackTrace();
-			return;
 		}
 		
 		System.out.println("fin " + App.class.getName());
 	}
 
+	/**
+	 * 
+	 * @throws TwitterException
+	 */
 	public void TweetQuerychanMovie() throws TwitterException {
 		final String TWITTER_SCREEN_NAME = "@mtk_f";
 		final String TWEET_TAG = "#クエリちゃんの動画をランダムにツイートするサービス #自動";
@@ -101,7 +105,10 @@ public class App {
 				System.out.println(rawJson);
 				String msg = String.format("%1$s %2$s %3$s", 
 						TWITTER_SCREEN_NAME, "JSON \\n error", TWEET_TAG);
-				twitter.updateStatus(msg);
+				System.out.println(msg);
+				if (IS_TWEETABLE) {
+					twitter.updateStatus(msg);
+				}
 				return;
 			}
 		}
@@ -111,7 +118,10 @@ public class App {
 			System.out.println(rawJson);
 			String msg = String.format("%1$s %2$s %3$s", 
 					TWITTER_SCREEN_NAME, "JSON \\n error", TWEET_TAG);
-			twitter.updateStatus(msg);
+			System.out.println(msg);
+			if (IS_TWEETABLE) {
+				twitter.updateStatus(msg);
+			}
 			return;
 		}
 
@@ -127,6 +137,7 @@ public class App {
 				String msg = String.format("%1$s %2$s %3$s", 
 						TWITTER_SCREEN_NAME, "response.json1st.values was null",
 						TWEET_TAG);
+				System.out.println(msg);
 				if (IS_TWEETABLE) {
 					twitter.updateStatus(msg);
 				}
@@ -141,6 +152,7 @@ public class App {
 				String msg = String.format("%1$s %2$s %3$s", 
 						TWITTER_SCREEN_NAME, "response.json2nd.values was null",
 						TWEET_TAG);
+				System.out.println(msg);
 				if (IS_TWEETABLE) {
 					twitter.updateStatus(msg);
 				}
@@ -157,9 +169,11 @@ public class App {
 
 			// タイトルが長すぎれば省略する.
 			final int maxLength = 40;
-			final int titleLen = Normalizer.normalize(value.title, Normalizer.Form.NFC).length();
+			final int titleLen = Normalizer
+					.normalize(value.title, Normalizer.Form.NFC).length();
 			String title = titleLen < maxLength 
-					? value.title : value.title.substring(0, maxLength) + "...";
+					? value.title : value.title.substring(0, maxLength) 
+							+ "...";
 
 			String msg = String.format(
 					"今日の %1$s のおすすめ動画\n" 
@@ -182,7 +196,9 @@ public class App {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, e.getMessage(), TWEET_TAG);
+			String msg = String.format("%1$s %2$s %3$s", TWITTER_SCREEN_NAME, 
+					e.getMessage(), TWEET_TAG);
+			System.out.println(msg);
 			if (IS_TWEETABLE) {
 				twitter.updateStatus(msg);
 			}
