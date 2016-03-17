@@ -39,18 +39,22 @@ public class App {
 
 		for (String envVariable : requiredEnvVariables) {
 			if (envVariable == null) {
-				System.out.printf("Environment variables \"TwitterApiKey\", \"TwitterSecretKey\", \"TwitterAccessToken\", \"TwitterAccessSecret\" are required\n", envVariable);
+				System.out.printf("Environment variables \"TwitterApiKey\", "
+						+ "\"TwitterSecretKey\", \"TwitterAccessToken\", "
+						+ "\"TwitterAccessSecret\" are required\n");
 				return;
 			}
 		}
 
 		// 環境変数の設定によってツイートしないことをログに出力する.
 		if (IS_TWEETABLE == false) {
-			System.out.printf("Environment variable \"Tweetable\" is not \"true\", so main tweet will not be posted.\n");
+			System.out.printf("Environment variable \"Tweetable\" is not \"true\", "
+					+ "so main tweet will not be posted.\n");
 		}
 		
 		try {
-			TweetQuerychanMovie();
+			App me = new App();
+			me.TweetQuerychanMovie();
 		} catch (TwitterException e) {
 			e.printStackTrace();
 			return;
@@ -59,7 +63,7 @@ public class App {
 		System.out.println("fin " + App.class.getName());
 	}
 
-	private static void TweetQuerychanMovie() throws TwitterException {
+	public void TweetQuerychanMovie() throws TwitterException {
 		final String TWITTER_SCREEN_NAME = "@mtk_f";
 		final String TWEET_TAG = "#クエリちゃんの動画をランダムにツイートするサービス #自動";
 		final String URL = "http://api.search.nicovideo.jp/api/";
@@ -117,7 +121,8 @@ public class App {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			// JSONの1行目をデシリアイズする.
-			Json1stDefinition json1st = mapper.readValue(rawJson1stLine, Json1stDefinition.class);
+			Json1stDefinition json1st = mapper
+					.readValue(rawJson1stLine, Json1stDefinition.class);
 			if (json1st.values == null) {
 				String msg = String.format("%1$s %2$s %3$s", 
 						TWITTER_SCREEN_NAME, "response.json1st.values was null",
@@ -129,7 +134,8 @@ public class App {
 			}
 			
 			// JSONの2行目をデシリアイズする.
-			Json2ndDefinition json2nd = mapper.readValue(rawJson2ndLine, Json2ndDefinition.class);
+			Json2ndDefinition json2nd = mapper
+					.readValue(rawJson2ndLine, Json2ndDefinition.class);
 			
 			if (json2nd.values == null) {
 				String msg = String.format("%1$s %2$s %3$s", 
@@ -151,8 +157,9 @@ public class App {
 
 			// タイトルが長すぎれば省略する.
 			final int maxLength = 40;
-			String title = Normalizer.normalize(value.title, Normalizer.Form.NFC).length() 
-					< maxLength ? value.title : value.title.substring(0, maxLength) + "...";
+			final int titleLen = Normalizer.normalize(value.title, Normalizer.Form.NFC).length();
+			String title = titleLen < maxLength 
+					? value.title : value.title.substring(0, maxLength) + "...";
 
 			String msg = String.format(
 					"今日の %1$s のおすすめ動画\n" 
