@@ -18,7 +18,7 @@ Eclipse Mars.2 Release
 ## 実行方法
 次の環境変数が必要です。
 * Tweetable  
- trueでツイートを投稿します。true以外でコンソール出力飲みします。
+ trueでツイートを投稿します。true以外ではツイートを投稿しません。
 * TwitterApiKey  
 Consumer Key (API Key)を設定します。
 * TwitterSecretKey  
