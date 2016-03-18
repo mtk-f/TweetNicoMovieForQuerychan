@@ -2,7 +2,7 @@
 クエリちゃんの動画をランダムにツイートするサービス
 
 ## 概要
-nicovideo.jpで投稿日が新しい順に「mmd クエリちゃん」でキーワード検索し、取得した動画(おそらく最大32件)の中からランダムに選んでツイッターに投稿します。
+nicovideo.jpで投稿日が新しい順に「mmd クエリちゃん」でキーワード検索し、取得した動画(おそらく最大32件)からランダムに一つ選んでツイッターに投稿します。
 
 
 ## スクリーンショット
@@ -27,6 +27,8 @@ Consumer Secret (API Secret)を設定します。
 Token=Access Tokeを設定します。
 * TwitterAccessSecret  
 Access Token Secreを設定します。
+* Twitter4jDebug  
+trueでTwitter4jのデバッグ機能を有効にします。
 
 
 jarファイルに書き出し後、環境変数を設定して実行します。  
