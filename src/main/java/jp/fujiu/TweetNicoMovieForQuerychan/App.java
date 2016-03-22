@@ -71,7 +71,7 @@ public class App {
 		final String TWITTER_SCREEN_NAME = "@mtk_f";
 		final String TWEET_TAG = "#クエリちゃんの動画をランダムにツイートするサービス #自動";
 		final String URL = "http://api.search.nicovideo.jp/api/";
-		final String QUERY = "mmd クエリちゃん";
+		final String QUERY = "MMD クエリちゃん";
 		final String postContent = String.format(
 				"{\"query\":\"%1$s\",\"service\":[\"video\"],\"search\":[\"title\",\"description\",\"tags\"],\"join\":[\"cmsid\",\"title\",\"description\",\"thumbnail_url\",\"start_time\",\"view_counter\",\"comment_counter\",\"mylist_counter\",\"channel_id\",\"main_community_id\",\"length_seconds\",\"last_res_body\"],\"filters\":[],\"sort_by\":\"start_time\",\"order\":\"desc\",\"from\":0,\"size\":%2$d,\"timeout\":10000,\"issuer\":\"pc\",\"reason\":\"user\"}",
 				QUERY, 50);
