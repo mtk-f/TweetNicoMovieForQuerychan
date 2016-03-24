@@ -69,7 +69,7 @@ public class App {
 	 */
 	public void TweetQuerychanMovie() throws TwitterException {
 		final String TWITTER_SCREEN_NAME = "@mtk_f";
-		final String TWEET_TAG = "#クエリちゃんの動画をランダムにツイートするサービス #自動";
+		final String TWEET_TAG = "#クエリちゃんの動画をランダムにツイートするサービス";
 		final String URL = "http://api.search.nicovideo.jp/api/";
 		final String QUERY = "MMD クエリちゃん";
 		final String postContent = String.format(
